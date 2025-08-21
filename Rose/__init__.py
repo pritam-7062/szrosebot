@@ -19,7 +19,7 @@ MOD_NOLOAD = []
 bot_start_time = time.time()
 DB_URI = BASE_DB #all of gm DATA
 MONGO_URL = MONGO_URL
-OWNER_ID = "1467358214"
+OWNER_ID = "5321060359"
 
 myclient = pymongo.MongoClient(DB_URI)
 dbn = myclient["supun"]
@@ -66,3 +66,4 @@ async def eor(msg: Message, **kwargs):
     )
     spec = getfullargspec(func.__wrapped__).args
     return await func(**{k: v for k, v in kwargs.items() if k in spec})
+
