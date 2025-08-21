@@ -6,18 +6,16 @@ from motor.motor_asyncio import AsyncIOMotorClient
 from pyrogram import Client
 from pyrogram.types import Message
 from Python_ARQ import ARQ
-import asyncio
-from pyrogram import Client
-from config.config import *
 import pymongo
+from config.config import *
 
-SUPPORT_GROUP = "https://t.me/slbotzone" #If you Don't Know Codes Any error Fixing method please Don't change this.... ):
+SUPPORT_GROUP = "https://t.me/slbotzone"
 SUDOERS = SUDO_USERS_ID
 LOG_GROUP_ID = LOG_GROUP_ID
 MOD_LOAD = []
 MOD_NOLOAD = []
 bot_start_time = time.time()
-DB_URI = BASE_DB #all of gm DATA
+DB_URI = BASE_DB
 MONGO_URL = MONGO_URL
 OWNER_ID = "5321060359"
 
@@ -26,6 +24,7 @@ dbn = myclient["supun"]
 
 mongo_client = AsyncIOMotorClient(MONGO_URL)
 db = mongo_client.wbb
+
 
 async def load_sudoers():
     global SUDOERS
@@ -42,21 +41,36 @@ async def load_sudoers():
             )
     SUDOERS = (SUDOERS + sudoers) if sudoers else SUDOERS
 
-loop = asyncio.get_event_loop()
-loop.run_until_complete(load_sudoers())
-aiohttpsession = ClientSession()
-arq = ARQ(ARQ_API_URL, ARQ_API_KEY, aiohttpsession)
-bot = Client("supun", bot_token=BOT_TOKEN, api_id=API_ID, api_hash=API_HASH)
-bot.start()
-app = Client("app2", bot_token=BOT_TOKEN, api_id=API_ID1, api_hash=API_HASH1)
-app.start()
-x = app.get_me()
 
-BOT_ID = int(BOT_TOKEN.split(":")[0])
-BOT_NAME = x.first_name + (x.last_name or "")
-BOT_USERNAME = x.username
-BOT_MENTION = x.mention
-BOT_DC_ID = x.dc_id
+# ✅ sab async init ke andar shift kiya
+aiohttpsession = None
+arq = None
+bot = None
+app = None
+x = None
+
+
+async def init_bot():
+    global aiohttpsession, arq, bot, app, x, BOT_ID, BOT_NAME, BOT_USERNAME, BOT_MENTION, BOT_DC_ID
+
+    await load_sudoers()
+
+    aiohttpsession = ClientSession()
+    arq = ARQ(ARQ_API_URL, ARQ_API_KEY, aiohttpsession)
+
+    bot = Client("supun", bot_token=BOT_TOKEN, api_id=API_ID, api_hash=API_HASH)
+    await bot.start()
+
+    app = Client("app2", bot_token=BOT_TOKEN, api_id=API_ID1, api_hash=API_HASH1)
+    await app.start()
+    x = await app.get_me()
+
+    BOT_ID = int(BOT_TOKEN.split(":")[0])
+    BOT_NAME = x.first_name + (x.last_name or "")
+    BOT_USERNAME = x.username
+    BOT_MENTION = x.mention
+    BOT_DC_ID = x.dc_id
+
 
 async def eor(msg: Message, **kwargs):
     func = (
@@ -67,3 +81,6 @@ async def eor(msg: Message, **kwargs):
     spec = getfullargspec(func.__wrapped__).args
     return await func(**{k: v for k, v in kwargs.items() if k in spec})
 
+
+# ✅ bot init karna hoga
+asyncio.get_event_loop().run_until_complete(init_bot())
